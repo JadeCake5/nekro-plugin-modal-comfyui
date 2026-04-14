@@ -62,7 +62,7 @@ class ModalComfyUIConfig(ConfigBase):
     )
 
     DECRYPT_PASSWORD: str = Field(
-        default="shiratamakeki_nanoda",
+        default="123qwe",
         title="加密/解密密码",
         description="与 ComfyUI 工作流中 EncryptImage 节点设置的密码一致",
     )
