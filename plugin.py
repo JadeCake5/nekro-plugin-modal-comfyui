@@ -39,7 +39,7 @@ plugin = NekroPlugin(
     name="Modal ComfyUI 绘图",
     module_name="modal_comfyui",
     description="通过 Modal 云端 ComfyUI Generate API 生成动漫风格图片，支持自定义提示词和参数。",
-    version="2.0.0",
+    version="2.1.0",
     author="ShiratamaKeki",
     url="",
     support_adapter=["onebot_v11", "discord", "telegram"],
@@ -149,6 +149,49 @@ class ModalComfyUIConfig(ConfigBase):
         default=1.0,
         title="默认 LoRA 强度",
         description="LoraLoader 的默认 strength，范围 0-2",
+    )
+
+    # --- 可用模型列表（用于 AI 提示注入，让 AI 知道能选什么模型） ---
+
+    AVAILABLE_CHECKPOINTS: str = Field(
+        default=(
+            "waiIllustriousSDXL_v160.safetensors, "
+            "zukiCuteILL_v60.safetensors, "
+            "illustmixluminous_v21.safetensors, "
+            "oeailIllustriousXLMore_oeaiV12.safetensors, "
+            "realvisxlV50_v30InpaintBakedvae.safetensors"
+        ),
+        title="可用大模型列表",
+        description="逗号分隔的 checkpoint 文件名列表，会注入到 AI 提示中",
+    )
+
+    AVAILABLE_LORAS: str = Field(
+        default=(
+            "IL_花園Senera3_v1.safetensors, "
+            "neri02.safetensors, "
+            "Ayatsuki_Nora0.3_lokr-000060.safetensors, "
+            "kawaii_CUTE2712_Illustrious_v1.0.safetensors, "
+            "baiyuA-000150-Fourth Furnace.safetensors, "
+            "baiyuA-000140.safetensors, "
+            "Shuvi-UC-v1.safetensors, "
+            "IzunaLora.safetensors, "
+            "Nachoneko_IL.safetensors, "
+            "shiratma_vtuber.safetensors, "
+            "铃兰2linglan-SDXL-lora-2024.10.19-version1-000024.safetensors, "
+            "鬼针草-000070.safetensors, "
+            "baku-p_pony_v1.safetensors, "
+            "weijiang_v2.safetensors, "
+            "Misono_Ichika.safetensors, "
+            "ill-xl-01-tyomimas_1-000032.safetensors, "
+            "PVC_Style_Movable_Figure_Model_XL.safetensors, "
+            "水梓azusa-swim_blue_archive_PONY_last.safetensors, "
+            "guizhencao3——【noob】hans.safetensors, "
+            "z-image-turbo-yachiyo.safetensors, "
+            "森亚露露卡Moria Luluka&Cure Arcana Shadow_v2_ill.safetensors, "
+            "futaba_sharo_20260129-000034.safetensors"
+        ),
+        title="可用 LoRA 列表",
+        description="逗号分隔的 LoRA 文件名列表，会注入到 AI 提示中",
     )
 
 
@@ -384,11 +427,24 @@ async def draw_image(
 @plugin.mount_prompt_inject_method(name="modal_comfyui_prompt_inject")
 async def modal_comfyui_prompt_inject(_ctx: schemas.AgentCtx) -> str:
     """绘图功能提示注入"""
-    return """Modal ComfyUI Drawing Plugin Available:
-- Call draw_image to generate anime-style images
-- Use English danbooru tags for best results, e.g. "1girl, solo, blue hair, smile, school uniform"
-- The image will be encrypted during transfer and automatically decrypted locally
-- After getting the file path, use send_image to send it to the user"""
+    return f"""Modal ComfyUI Drawing Plugin Available:
+Call draw_image(positive_prompt, ...) to generate anime-style images, then use send_image to send the result.
+
+Default parameters (used when not specified):
+- steps: {config.DEFAULT_STEPS}, cfg: {config.DEFAULT_CFG}, sampler: {config.DEFAULT_SAMPLER_NAME}, scheduler: {config.DEFAULT_SCHEDULER}
+- resolution: {config.DEFAULT_WIDTH}x{config.DEFAULT_HEIGHT}, denoise: {config.DEFAULT_DENOISE}
+- Use English danbooru tags for positive_prompt, e.g. "1girl, solo, blue hair, smile"
+
+Available checkpoints:
+{config.AVAILABLE_CHECKPOINTS}
+
+Available LoRAs:
+{config.AVAILABLE_LORAS}
+
+Tips:
+- Only specify parameters you want to change, others will use defaults above
+- seed=-1 means random, specify a seed to reproduce the same image
+- checkpoint and lora_name must use exact filenames from the lists above"""
 
 
 # ============================================================

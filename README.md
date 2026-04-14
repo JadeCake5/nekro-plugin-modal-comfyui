@@ -64,10 +64,22 @@ AI 会自动调用 `draw_image` 工具生成图片并发送。
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
 | GENERATE_API_URL | (需填写) | Modal ComfyUI Generate 端点 URL |
-| DECRYPT_PASSWORD | shiratamakeki_nanoda | 解密密码，需与工作流 EncryptImage 节点一致 |
+| DECRYPT_PASSWORD | 123qwe | 解密密码，需与工作流 EncryptImage 节点一致 |
 | DEFAULT_NEGATIVE_PROMPT | bad quality, worst quality... | 默认负向提示词 |
 | REQUEST_TIMEOUT | 660 | HTTP 请求超时时间（秒） |
 | OUTPUT_DIR | ./data/modal_comfyui_output | 图片本地保存路径 |
+| DEFAULT_STEPS | 32 | 默认采样步数 |
+| DEFAULT_CFG | 6.5 | 默认 CFG 引导系数 |
+| DEFAULT_WIDTH | 896 | 默认图片宽度 |
+| DEFAULT_HEIGHT | 1152 | 默认图片高度 |
+| DEFAULT_SAMPLER_NAME | euler_ancestral | 默认采样器 |
+| DEFAULT_SCHEDULER | normal | 默认调度器 |
+| DEFAULT_DENOISE | 1.0 | 默认去噪强度 |
+| DEFAULT_CHECKPOINT | (空) | 默认大模型，留空用工作流内置 |
+| DEFAULT_LORA_NAME | (空) | 默认 LoRA，留空用工作流内置 |
+| DEFAULT_LORA_STRENGTH | 1.0 | 默认 LoRA 强度 |
+| AVAILABLE_CHECKPOINTS | (见配置页) | 可用大模型列表，注入到 AI 提示中 |
+| AVAILABLE_LORAS | (见配置页) | 可用 LoRA 列表，注入到 AI 提示中 |
 
 ## 工作原理
 
