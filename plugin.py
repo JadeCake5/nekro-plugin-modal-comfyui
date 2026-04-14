@@ -161,7 +161,7 @@ class ModalComfyUIConfig(ConfigBase):
 
     AVAILABLE_LORAS: str = Field(
         default=(
-            "IL_花園Senera3_v1.safetensors, "
+            "IL_花园Senera3_v1.safetensors, "
             "neri02.safetensors, "
             "Ayatsuki_Nora0.3_lokr-000060.safetensors, "
             "kawaii_CUTE2712_Illustrious_v1.0.safetensors, "
@@ -435,7 +435,8 @@ Available LoRAs:
 Tips:
 - Only specify parameters you want to change, others will use defaults above
 - seed=-1 means random, specify a seed to reproduce the same image
-- checkpoint and lora_name must use exact filenames from the lists above"""
+- checkpoint and lora_name must use exact filenames from the lists above
+- IMPORTANT: If your prompt contains literal parentheses (e.g. character names like "hoshi (snacherubi)"), you MUST use double backslashes \\\\( and \\\\) in the Python string, e.g. "hoshi \\\\(snacherubi\\\\)". Single backslash \\( will cause SyntaxError."""
 
 
 # ============================================================
