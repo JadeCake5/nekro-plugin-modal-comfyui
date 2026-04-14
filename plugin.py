@@ -41,7 +41,7 @@ plugin = NekroPlugin(
     description="通过 Modal 云端 ComfyUI Generate API 生成动漫风格图片，支持自定义提示词和参数。",
     version="2.1.0",
     author="ShiratamaKeki",
-    url="",
+    url="https://github.com/JadeCake5/nekro-plugin-modal-comfyui",
     support_adapter=["onebot_v11", "discord", "telegram"],
 )
 
