@@ -448,10 +448,6 @@ async def initialize_plugin():
     """插件初始化"""
     core.logger.info("[Modal ComfyUI] 插件初始化...")
     core.logger.info(f"[Modal ComfyUI] API 地址: {config.GENERATE_API_URL}")
-    core.logger.info(f"[Modal ComfyUI] 输出目录: {config.OUTPUT_DIR}")
-
-    output_dir = Path(config.OUTPUT_DIR)
-    output_dir.mkdir(parents=True, exist_ok=True)
 
     core.logger.success("[Modal ComfyUI] 插件初始化完成")
 
