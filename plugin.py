@@ -37,7 +37,7 @@ from .metadata_utils import remove_workflow_metadata
 
 plugin = NekroPlugin(
     name="Modal ComfyUI 绘图",
-    module_name="modal_comfyui",
+    module_name="nekro_plugin_modal_comfyui",
     description="通过 Modal 云端 ComfyUI Generate API 生成动漫风格图片，支持自定义提示词和参数。",
     version="2.1.0",
     author="ShiratamaKeki",
