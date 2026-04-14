@@ -89,6 +89,68 @@ class ModalComfyUIConfig(ConfigBase):
         description="生成的图片本地保存路径",
     )
 
+    # --- 生成参数默认值（匹配当前工作流模板，换工作流时在此修改） ---
+
+    DEFAULT_STEPS: int = Field(
+        default=32,
+        title="默认采样步数",
+        description="KSampler 的默认 steps，推荐 20-40",
+    )
+
+    DEFAULT_CFG: float = Field(
+        default=6.5,
+        title="默认 CFG 引导系数",
+        description="KSampler 的默认 cfg，推荐 5-10",
+    )
+
+    DEFAULT_WIDTH: int = Field(
+        default=896,
+        title="默认图片宽度",
+        description="EmptyLatentImage 的默认宽度",
+    )
+
+    DEFAULT_HEIGHT: int = Field(
+        default=1152,
+        title="默认图片高度",
+        description="EmptyLatentImage 的默认高度",
+    )
+
+    DEFAULT_SAMPLER_NAME: str = Field(
+        default="euler_ancestral",
+        title="默认采样器",
+        description="KSampler 的默认 sampler_name，可选 euler, dpmpp_2m, dpmpp_sde 等",
+    )
+
+    DEFAULT_SCHEDULER: str = Field(
+        default="normal",
+        title="默认调度器",
+        description="KSampler 的默认 scheduler，可选 karras, exponential, sgm_uniform",
+    )
+
+    DEFAULT_DENOISE: float = Field(
+        default=1.0,
+        title="默认去噪强度",
+        description="KSampler 的默认 denoise，1.0=完全生成，img2img 建议 0.3-0.7",
+    )
+
+    DEFAULT_CHECKPOINT: str = Field(
+        default="",
+        title="默认大模型",
+        description="CheckpointLoaderSimple 的默认 ckpt_name，留空则使用工作流内置值",
+    )
+
+    DEFAULT_LORA_NAME: str = Field(
+        default="",
+        title="默认 LoRA",
+        description="LoraLoader 的默认 lora_name，留空则使用工作流内置值",
+    )
+
+    DEFAULT_LORA_STRENGTH: float = Field(
+        default=1.0,
+        title="默认 LoRA 强度",
+        description="LoraLoader 的默认 strength，范围 0-2",
+    )
+
 
 config: ModalComfyUIConfig = plugin.get_config(ModalComfyUIConfig)
 
@@ -237,18 +299,18 @@ async def draw_image(
         if not negative_prompt:
             negative_prompt = config.DEFAULT_NEGATIVE_PROMPT
 
-        # 将 "未设置" 的参数转为 None
+        # AI 未指定的参数（-1 或空）使用配置中的默认值
         actual_seed = seed if seed >= 0 else None
-        actual_steps = steps if steps > 0 else None
-        actual_cfg = cfg if cfg > 0 else None
-        actual_width = width if width > 0 else None
-        actual_height = height if height > 0 else None
-        actual_sampler = sampler_name if sampler_name else None
-        actual_scheduler = scheduler if scheduler else None
-        actual_denoise = denoise if denoise >= 0 else None
-        actual_checkpoint = checkpoint if checkpoint else None
-        actual_lora = lora_name if lora_name else None
-        actual_lora_str = lora_strength if lora_strength >= 0 else None
+        actual_steps = steps if steps > 0 else config.DEFAULT_STEPS
+        actual_cfg = cfg if cfg > 0 else config.DEFAULT_CFG
+        actual_width = width if width > 0 else config.DEFAULT_WIDTH
+        actual_height = height if height > 0 else config.DEFAULT_HEIGHT
+        actual_sampler = sampler_name if sampler_name else config.DEFAULT_SAMPLER_NAME
+        actual_scheduler = scheduler if scheduler else config.DEFAULT_SCHEDULER
+        actual_denoise = denoise if denoise >= 0 else config.DEFAULT_DENOISE
+        actual_checkpoint = checkpoint if checkpoint else (config.DEFAULT_CHECKPOINT or None)
+        actual_lora = lora_name if lora_name else (config.DEFAULT_LORA_NAME or None)
+        actual_lora_str = lora_strength if lora_strength >= 0 else config.DEFAULT_LORA_STRENGTH
 
         unique_id = str(uuid.uuid4())[:8]
 
@@ -277,7 +339,9 @@ async def draw_image(
             _decrypt_and_clean, encrypted_bytes, config.DECRYPT_PASSWORD
         )
 
-        output_dir = Path(config.OUTPUT_DIR)
+        # NekroAgent 的 send_msg_file 只接受 "shared" 或 "uploads" 路径
+        # 必须保存到 /app/shared/ 下才能被 AI 正常发送
+        output_dir = Path("/app/shared/comfyui_output")
         output_dir.mkdir(parents=True, exist_ok=True)
 
         if actual_seed is not None:
