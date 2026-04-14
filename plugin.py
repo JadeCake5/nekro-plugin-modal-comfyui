@@ -292,6 +292,7 @@ async def _call_generate_api(
 )
 async def draw_image(
     _ctx: schemas.AgentCtx,
+    chat_key: str,
     positive_prompt: str,
     negative_prompt: str = "",
     seed: int = -1,
@@ -311,7 +312,7 @@ async def draw_image(
     Generate anime-style images via cloud ComfyUI service.
 
     Args:
-        _ctx: Agent context
+        chat_key: Chat channel identifier (use _ck in sandbox)
         positive_prompt: Positive prompt using danbooru tags
         negative_prompt: Negative prompt (empty = use default)
         seed: Random seed (-1 = random)
