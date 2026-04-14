@@ -83,12 +83,6 @@ class ModalComfyUIConfig(ConfigBase):
         description="调用 Generate API 的 HTTP 超时时间，需大于服务端最大生成时间",
     )
 
-    OUTPUT_DIR: str = Field(
-        default="./data/modal_comfyui_output",
-        title="图片输出目录",
-        description="生成的图片本地保存路径",
-    )
-
     # --- 生成参数默认值（匹配当前工作流模板，换工作流时在此修改） ---
 
     DEFAULT_STEPS: int = Field(
@@ -382,28 +376,25 @@ async def draw_image(
             _decrypt_and_clean, encrypted_bytes, config.DECRYPT_PASSWORD
         )
 
-        # NekroAgent 的 send_msg_file 只接受 "shared" 或 "uploads" 路径
-        # 必须保存到 /app/shared/ 下才能被 AI 正常发送
-        output_dir = Path("/app/shared/comfyui_output")
-        output_dir.mkdir(parents=True, exist_ok=True)
-
         if actual_seed is not None:
             filename = f"comfyui_{actual_seed}_{unique_id}.png"
         else:
             filename = f"comfyui_{unique_id}.png"
 
-        output_path = output_dir / filename
-        with open(output_path, "wb") as f:
-            f.write(clean_bytes)
+        # 使用 NekroAgent 的 fs 工具将图片转发到沙盒可访问的路径
+        # mixed_forward_file 自动处理宿主机/沙盒路径映射
+        sandbox_path = await _ctx.fs.mixed_forward_file(
+            clean_bytes, file_name=filename
+        )
 
         elapsed = time.time() - start_time
         file_size = _format_size(len(clean_bytes))
 
         core.logger.info(
-            f"[Modal ComfyUI] 图片生成完成: {output_path} ({file_size}, {elapsed:.1f}s)"
+            f"[Modal ComfyUI] 图片生成完成: {sandbox_path} ({file_size}, {elapsed:.1f}s)"
         )
 
-        return str(output_path)
+        return sandbox_path
 
     except requests.exceptions.ConnectionError:
         core.logger.error("[Modal ComfyUI] 无法连接到 ComfyUI 服务器")
